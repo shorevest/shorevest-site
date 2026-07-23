@@ -1,0 +1,364 @@
+/* ==========================================================================
+   ShoreVest — China Debt Dynamics PRINT / PDF template (2026-06-22 rebuild)
+   Self-contained. Drives china-debt-dynamics-print.html, populated by the
+   shared renderer in isPrint mode. Screen view shows a centered white "sheet"
+   with a Save-as-PDF toolbar; print view is a clean A4 document. Institutional
+   system: white paper, ink text, cinnabar as structural rules, DIN/Barlow,
+   square edges, no shadows in print, no green, no English serif.
+   ========================================================================== */
+
+:root {
+  --p-page-width: 210mm;
+  --p-page-margin-x: 16mm;
+  --p-page-margin-top: 17mm;
+  --p-page-margin-continued-top: 14mm;
+  --p-print-top-rule-height: 0;
+  --p-page-margin-bottom: 18mm;
+  --p-printable-width: calc(var(--p-page-width) - (var(--p-page-margin-x) * 2));
+  --p-cinnabar: #C93B2A;
+  --p-cinnabar-d: #9F2F24;
+  --p-ink: #182524;
+  --p-ink-2: #2A302E;
+  --p-muted: #6E7169;
+  --p-line: rgba(23, 53, 54, 0.16);
+  --p-line-soft: rgba(23, 53, 54, 0.10);
+  --p-paper: #FFFFFF;
+  --p-font: "DIN 2014", "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --p-cn: "Noto Serif SC", serif;
+}
+
+* { box-sizing: border-box; overscroll-behavior: none; }
+
+html, body { overscroll-behavior: none; }
+
+@page { size: A4; margin: 0; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body.cdd-print-layout {
+  margin: 0; padding: 0 16px 56px;
+  overflow-x: hidden;
+  background: #E7E4DC;                 /* screen backdrop only */
+  color: var(--p-ink-2);
+  font-family: var(--p-font);
+  font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+@media screen {
+  body.cdd-print-layout .wrap {
+    width: min(var(--p-page-width), calc(100vw - 32px));
+    max-width: none;
+    margin-inline: auto;
+  }
+}
+body.cdd-print-layout .wrap { max-width: none; margin-inline: auto; }
+
+/* ---- Running header strip (publication nameplate + screen toolbar) ---- */
+.cdd-print-layout .cdd-topline { max-width: var(--p-page-width); margin: 0 auto 14px; padding: 32px 4px 0; }
+.cdd-print-layout .cdd-topline__inner {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.cdd-print-layout .cdd-topline__brand { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.cdd-print-layout .cdd-label {
+  font: 600 11px/1.2 var(--p-font); letter-spacing: 0.16em; text-transform: uppercase; color: var(--p-cinnabar); white-space: nowrap;
+}
+.cdd-print-layout .cdd-lockup { font: 500 14px/1.2 var(--p-cn); color: var(--p-ink-2); white-space: nowrap; }
+
+/* ---- Toolbar (screen only) ---- */
+.cdd-print-layout .cdd-topline__tools { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; flex: none; }
+.cdd-print-layout .cdd-btn {
+  appearance: none; cursor: pointer; border-radius: 0; white-space: nowrap;
+  display: inline-flex; align-items: center; height: 44px; padding: 0 24px;
+  font: 600 12px/1 var(--p-font); letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--p-cinnabar); color: #fff; border: 1px solid var(--p-cinnabar);
+  transition: background .15s ease;
+}
+.cdd-print-layout .cdd-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+.cdd-print-layout .cdd-btn:hover { background: var(--p-cinnabar-d); border-color: var(--p-cinnabar-d); }
+.cdd-print-layout .cdd-btn--secondary { background: transparent; color: var(--p-cinnabar); text-decoration: none; }
+.cdd-print-layout .cdd-btn--secondary:hover { background: rgba(201, 59, 42, 0.08); color: var(--p-cinnabar-d); }
+.cdd-print-layout .cdd-print-note { margin: 0; max-width: 230px; text-align: right; font: 400 11px/1.45 var(--p-font); color: var(--p-muted); }
+/* The shared renderer injects a Share control into .cdd-actions; it has no place
+   on a print/PDF sheet, so hide the whole control (button + menu). */
+.cdd-print-layout .cdd-share { display: none !important; }
+
+/* ---- The sheet ---- */
+.cdd-print-layout .cdd-print-shell {
+  overflow: hidden;
+  background: var(--p-paper);
+  position: relative;
+  border-top: 0;
+  box-shadow: 0 1px 0 var(--p-line), 0 18px 50px rgba(20, 30, 28, 0.14);
+  padding: var(--p-page-margin-top) var(--p-page-margin-x) var(--p-page-margin-bottom);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+/* The absolute pseudo-element is positioned from the shell content box in
+   print engines, so pull it through the horizontal page padding to the sheet edge. */
+.cdd-print-layout .cdd-print-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  right: auto;
+  width: var(--p-page-width);
+  transform: translateX(-50%);
+  height: var(--p-print-top-rule-height);
+  background: transparent;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---- Masthead ---- */
+.cdd-print-layout .cdd-print-masthead { margin-bottom: 26px; }
+.cdd-print-layout .cdd-print-label { display: none; }   /* redundant with the running strip */
+.cdd-print-layout .cdd-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+  padding-bottom: 18px; border-bottom: 1px solid var(--p-line);
+  font: 600 11px/1.3 var(--p-font); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--p-muted); font-variant-numeric: tabular-nums;
+}
+.cdd-print-layout .cdd-meta span { position: relative; }
+.cdd-print-layout .cdd-meta span + span { padding-left: 15px; }
+.cdd-print-layout .cdd-meta span + span::before {
+  content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 1px; height: 10px; background: var(--p-line);
+}
+.cdd-print-layout .cdd-meta span:first-child { color: var(--p-cinnabar); }
+
+/* ---- Title + dek ---- */
+.cdd-print-layout .cdd-print-hero { margin-bottom: 30px; }
+.cdd-print-layout .cdd-title {
+  margin: 22px 0 0; font: 500 clamp(28px, 4.4vw, 38px)/1.1 var(--p-font);
+  letter-spacing: -0.02em; color: var(--p-ink); text-wrap: balance;
+}
+/* Dek spans the full sheet width, aligning with the title — not a narrow column. */
+.cdd-print-layout .cdd-dek {
+  margin: 18px 0 0; max-width: none;
+  font: 400 clamp(15px, 1.6vw, 17px)/1.55 var(--p-font); color: var(--p-ink-2);
+  text-wrap: pretty;
+}
+.cdd-print-layout .cdd-dek:empty { display: none; }
+
+/* ---- Key findings (quiet ruled inset, no card) ---- */
+.cdd-print-layout .cdd-findings-row { margin: 0 0 30px; }
+.cdd-print-layout .cdd-findings-row[hidden] { display: none; }
+.cdd-print-layout .cdd-sidecard {
+  border-top: 1px solid var(--p-ink); border-bottom: 1px solid var(--p-line);
+  padding: 18px 0 6px;
+}
+.cdd-print-layout .cdd-sidecard h3 {
+  margin: 0 0 12px; font: 600 11px/1.3 var(--p-font); letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--p-muted);
+}
+.cdd-print-layout .cdd-sidecard ul { list-style: none; margin: 0; padding: 0; columns: 1; }
+.cdd-print-layout .cdd-sidecard ul li {
+  position: relative; padding: 0 0 12px 18px; margin: 0; break-inside: avoid;
+  font: 400 13px/1.5 var(--p-font); color: var(--p-ink-2);
+}
+.cdd-print-layout .cdd-sidecard ul li::before {
+  content: ""; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; background: var(--p-cinnabar);
+}
+
+/* ---- Body ---- */
+.cdd-print-layout .cdd-body { max-width: none; }
+.cdd-print-layout .cdd-body > h2 {
+  margin: 26px 0 12px; padding-top: 18px; border-top: 1px solid var(--p-line);
+  font: 500 clamp(18px, 2.4vw, 21px)/1.2 var(--p-font); letter-spacing: -0.01em; color: var(--p-ink);
+  position: relative; break-after: avoid;
+}
+.cdd-print-layout .cdd-body > h2::before {
+  content: none; display: none;
+}
+.cdd-print-layout .cdd-body > h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.cdd-print-layout .cdd-body > h2:first-child::before { display: none; }
+.cdd-print-layout .cdd-body p {
+  margin: 0 0 1.15em; font: 400 14.5px/1.62 var(--p-font); color: var(--p-ink-2);
+  orphans: 2; widows: 2;
+}
+.cdd-print-layout .cdd-body ul { margin: 0 0 1.2em; padding: 0; list-style: none; }
+.cdd-print-layout .cdd-body ul li {
+  position: relative; padding: 0 0 0 20px; margin: 0 0 0.5em;
+  font: 400 14.5px/1.55 var(--p-font); color: var(--p-ink-2);
+}
+.cdd-print-layout .cdd-body ul li::before {
+  content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; background: var(--p-cinnabar);
+}
+
+/* ---- Disclosures ---- */
+.cdd-print-layout .cdd-disclaimer {
+  margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--p-ink);
+  break-inside: avoid;
+}
+.cdd-print-layout .cdd-disclaimer h4 {
+  margin: 0 0 16px; font: 600 11px/1.3 var(--p-font); letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--p-cinnabar);
+}
+.cdd-print-layout .cdd-disclaimer p[data-cdd-disclaimer] {
+  margin: 0; max-width: none;
+  font: 400 11px/1.6 var(--p-font); color: var(--p-muted);
+}
+.cdd-print-layout .cdd-disclaimer p[data-cdd-copyright] {
+  margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--p-line-soft);
+  font: 500 10.5px/1.4 var(--p-font); letter-spacing: 0.04em; text-transform: uppercase; color: var(--p-muted);
+}
+
+/* ==========================================================================
+   PRINT
+   ========================================================================== */
+@media print {
+  @page { size: A4; margin: 17mm 0 18mm; }
+
+  /*
+     Export only the white document area: the beige browser-preview backdrop,
+     toolbar/nameplate strip, and screen shadow are intentionally removed for
+     print-ready PDFs. Browser print engines disagree on cloned element padding
+     across fragmented pages (especially Safari versus Chromium), so the page
+     box owns vertical insets and the A4 shell owns horizontal insets. This keeps
+     second and later PDF pages from starting too close to the top edge while
+     preserving the same content width as the on-screen A4/PDF preview.
+  */
+  html,
+  body.cdd-print-layout {
+    width: var(--p-page-width);
+    min-width: var(--p-page-width);
+    margin: 0 auto;
+    padding: 0;
+    background: var(--p-paper);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  .cdd-print-layout .cdd-topline,
+  .cdd-print-layout .cdd-print-hide,
+  .cdd-print-layout .cdd-topline__tools { display: none !important; }
+  /* Browser print/PDF engines can still apply an unprintable-area inset even
+     when @page margin is zero. Anchor an oversized fixed rule to the page box
+     itself so the cinnabar line reaches the visible PDF edges in Preview. */
+  body.cdd-print-layout::before {
+    content: "";
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: -100mm;
+    width: calc(100vw + 200mm);
+    height: var(--p-print-top-rule-height);
+    background: transparent;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .cdd-print-layout .wrap { width: auto; max-width: none; }
+  .cdd-print-layout .cdd-print-shell {
+    position: relative;
+    box-shadow: none;
+    background: var(--p-paper);
+    width: var(--p-page-width);
+    min-height: calc(297mm - var(--p-page-margin-top) - var(--p-page-margin-bottom));
+    margin: 0 auto;
+    overflow: visible;
+    border-top: 0;
+    padding: 0 var(--p-page-margin-x);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  /* Repeat the same padding escape in print output so saved PDFs reach both page edges. */
+  .cdd-print-layout .cdd-print-shell::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    right: auto;
+    display: block;
+    width: var(--p-page-width);
+    transform: translateX(-50%);
+    height: var(--p-print-top-rule-height);
+    background: transparent;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /*
+     Keep print typography independent of each browser's print viewport. Safari
+     and Chromium resolve vw/clamp() differently in print preview, which changes
+     text metrics and can turn the same article into a different page count.
+  */
+  .cdd-print-layout .cdd-title {
+    font-size: 38px;
+    font-kerning: normal;
+    line-height: 1.1;
+    text-wrap: normal;
+  }
+  .cdd-print-layout .cdd-dek {
+    font-size: 17px;
+    line-height: 1.55;
+    text-wrap: normal;
+  }
+  .cdd-print-layout .cdd-body > h2 {
+    font-size: 21px;
+    font-kerning: normal;
+    line-height: 1.2;
+    text-wrap: normal;
+  }
+
+  .cdd-print-layout .cdd-body > h2 { break-after: avoid; }
+
+  .cdd-print-layout .cdd-body > h2 {
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid var(--p-line);
+  }
+  .cdd-print-layout .cdd-disclaimer { break-inside: avoid; }
+}
+
+@media screen and (max-width: 640px) {
+  .cdd-print-layout .cdd-topline__inner { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .cdd-print-layout .cdd-topline__tools { align-items: flex-start; }
+  .cdd-print-layout .cdd-print-note { text-align: left; }
+  .cdd-print-layout .cdd-sidecard ul { columns: 1; }
+}
+
+/* This page carries no styles for the shared back-to-top control injected by
+   cdd-article-template.js; suppress it so it cannot render unstyled. */
+.cdd-print-layout .sv-back-to-top,
+.cdd-print-layout .back-to-top { display: none !important; }
+
+/* Safari's print compositor can treat a physically sized body as a shrink-to-fit
+   page, while Chromium prints the same CDD sheet at the CSS page size declared
+   above. Anchor the Safari print canvas to the page origin and make the A4 sheet
+   the only physical-width element so Save as PDF matches Chromium's geometry.
+   The print page margins for Safari are injected from the template after user-
+   agent detection; Safari does not reliably clone the shell's top/bottom padding
+   across fragmented PDF pages, so the browser page box owns vertical whitespace
+   there while this sheet keeps Chromium's horizontal content geometry. */
+@media print {
+  html.cdd-print-safari,
+  html.cdd-print-safari body.cdd-print-layout {
+    width: auto;
+    min-width: 0;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  html.cdd-print-safari body.cdd-print-layout {
+    display: block;
+  }
+
+  html.cdd-print-safari .cdd-print-layout .cdd-print-shell {
+    left: 0;
+    right: auto;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: var(--p-page-width);
+    min-height: calc(297mm - var(--p-page-margin-top) - var(--p-page-margin-bottom));
+    padding-top: 0;
+    padding-bottom: 0;
+    transform: none;
+  }
+
+  html.cdd-print-safari .cdd-print-layout .cdd-print-shell::before {
+    left: 0;
+    width: var(--p-page-width);
+    transform: none;
+  }
+}

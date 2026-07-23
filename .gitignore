@@ -1,0 +1,59 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor and workspace metadata
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs and diagnostics
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependency and build output folders
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local static-server and generated artifacts
+*.tmp
+*.bak
+*.orig
+
+# ShoreVest One application runtime database (never commit workflow state)
+server/.data/
+*.db
+*.db-wal
+*.db-shm
+coverage/
+playwright-report/
+test-results/
+
+# Media-coverage PDF generation: QA previews and temp render pages
+templates/media-coverage/preview/
+templates/media-coverage/*.gen.html
+
+# QA screenshots and scratch captures (keep these out of the repo root)
+/Screenshot*.png
+/Screenshot*.svg
+/pasted-*.png
+/IMG_*.png
+/_*.png
+/[0-9][0-9]-*.png
+/u-*.png
+/mh-*.png
+/mobile-*.png

@@ -1,0 +1,469 @@
+/* ==========================================================================
+   ShoreVest — Media page (2026-06-22, institutional rebuild)
+   Self-contained Media system, built on the same design argument as the
+   Firm / Strategy rebuilds. Inherits header / footer / tokens / chrome from
+   homepage-rebuild.css. Text-forward, 12-col grid, thin 1px rules, restrained
+   cinnabar marks, no cards / icons / imagery — unified with the rest of the
+   site. DIN (Barlow) for structure; the archive is a disciplined ledger.
+   ========================================================================== */
+
+body.press-page { background: var(--sv-ivory); }
+
+/* Shared eyebrow with a single cinnabar mark (used sparingly). */
+body.press-page .pr-eyebrow {
+  margin: 0 0 22px; padding-top: 0; position: relative;
+  font: 600 12px/1.4 var(--sv-font); letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--sv-ink);
+}
+body.press-page .pr-eyebrow::before {
+  content: none; display: none;
+}
+body.press-page .pr-kicker {
+  margin: 0 0 18px;
+  font: 600 11px/1.3 var(--sv-font); letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--sv-muted, #6E7169);
+}
+
+/* ==========================================================================
+   2 · EVENTS LEDGERS — upcoming + previous, sharing one row system
+   ========================================================================== */
+body.press-page .pr-events { padding-block: clamp(40px, 4.6vw, 64px); border-top: 1px solid var(--sv-border-light-strong); }
+body.press-page .pr-section-head {
+  display: grid; grid-template-columns: repeat(12, 1fr); gap: clamp(20px, 4vw, 64px);
+  align-items: end; margin-bottom: clamp(26px, 3vw, 40px);
+}
+body.press-page .pr-section-head__l { grid-column: 1 / 8; }
+body.press-page .pr-section-head__r { grid-column: 9 / 13; align-self: end; }
+body.press-page .pr-section-title {
+  margin: 0; font: 500 clamp(26px, 2.7vw, 36px)/1.1 var(--sv-font);
+  letter-spacing: -0.02em; color: var(--sv-ink);
+}
+body.press-page .pr-section-sub {
+  margin: 12px 0 0; max-width: 62ch;
+  font: 400 15px/1.6 var(--sv-font); color: var(--sv-ink-2);
+}
+body.press-page .pr-inquiry { text-align: right; }
+body.press-page .pr-inquiry__label {
+  margin: 0 0 6px; font: 600 11px/1.3 var(--sv-font);
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--sv-muted, #6E7169);
+}
+body.press-page .pr-inquiry a {
+  font: 500 16px/1.4 var(--sv-font); color: var(--sv-cinnabar); text-decoration: none;
+  border-bottom: 1px solid transparent; transition: border-color .15s ease;
+}
+body.press-page .pr-inquiry a:hover { border-color: var(--sv-cinnabar); }
+
+body.press-page .pr-events__table { border-top: 1px solid var(--sv-ink); }
+body.press-page .pr-event-row {
+  display: grid; grid-template-columns: 132px 116px 1fr 150px 80px;
+  gap: clamp(16px, 2.4vw, 36px); align-items: baseline;
+  padding: 30px clamp(18px, 2vw, 28px); border-bottom: 1px solid var(--sv-border-light);
+  transition: background .15s ease;
+}
+body.press-page .pr-event-row:hover { background: rgba(122, 175, 175, 0.08); }
+body.press-page .pr-event-row[hidden] { display: none; }
+body.press-page .pr-event-date {
+  font: 600 13px/1.3 var(--sv-font); letter-spacing: 0.04em; color: var(--sv-ink);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+body.press-page .pr-event-type {
+  font: 600 11px/1.2 var(--sv-font); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--sv-muted, #6E7169);
+}
+body.press-page .pr-event-title {
+  font: 500 18px/1.3 var(--sv-font); color: var(--sv-ink);
+}
+body.press-page .pr-event-title small {
+  display: block; margin-top: 6px;
+  font: 400 14.5px/1.5 var(--sv-font); color: var(--sv-ink-2);
+}
+body.press-page .pr-event-location {
+  font: 400 15px/1.4 var(--sv-font); color: var(--sv-ink-2);
+}
+body.press-page .pr-event-link {
+  justify-self: end; white-space: nowrap;
+  font: 600 12px/1 var(--sv-font); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--sv-ink-2); text-decoration: none;
+  border-bottom: 1px solid transparent; padding-bottom: 3px;
+  transition: color .15s ease, border-color .15s ease;
+}
+body.press-page .pr-event-link:hover { color: var(--sv-cinnabar); border-color: var(--sv-cinnabar); }
+body.press-page .pr-event-row:hover .pr-event-link { color: var(--sv-cinnabar); }
+body.press-page .pr-event-link--plain:hover { border-color: transparent; }
+/* A past appearance with a linked post: the link leads with cinnabar so the
+   coverage reads as the row's payoff, not an afterthought. */
+body.press-page .pr-event-link--post { color: var(--sv-cinnabar); }
+
+body.press-page .pr-event-status {
+  display: inline-block; margin: 0 9px 10px 0;
+  font: 600 10px/1 var(--sv-font); letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--sv-muted, #6E7169);
+  padding: 4px 9px; border: 1px solid var(--sv-border-light-strong);
+}
+
+/* Quiet empty state when no upcoming events remain (sits under the table's
+   top rule; no card, icon, or CTA). */
+body.press-page .pr-events__empty {
+  margin: 0; padding: 28px 0 4px;
+  font: 400 16px/1.5 var(--sv-font); color: var(--sv-muted, #6E7169);
+}
+body.press-page .pr-events__empty[hidden] { display: none; }
+
+/* "Show more" toggle shared by both event ledgers — only a slice of each list
+   shows by default; this reveals the rest in place. Quiet, text-forward, sits
+   on its own rule so it reads as a control, not another event row. */
+body.press-page .pr-events__more {
+  display: flex; justify-content: center;
+  padding: 22px 0 4px;
+}
+body.press-page .pr-events__more-btn {
+  appearance: none; background: none; cursor: pointer;
+  font: 600 12px/1 var(--sv-font); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--sv-cinnabar);
+  padding: 10px 22px; border: 1px solid var(--sv-border-light-strong);
+  transition: border-color .15s ease, color .15s ease;
+}
+body.press-page .pr-events__more-btn:hover { border-color: var(--sv-cinnabar); }
+
+@media (max-width: 880px) {
+  body.press-page .pr-section-head__l,
+  body.press-page .pr-section-head__r { grid-column: 1 / 13; }
+  body.press-page .pr-section-head__r { margin-top: 12px; }
+  body.press-page .pr-event-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "type link" "title title" "date loc";
+    gap: 8px 16px; row-gap: 10px;
+  }
+  body.press-page .pr-event-type { grid-area: type; }
+  body.press-page .pr-event-link { grid-area: link; padding-block: 11px; }
+  body.press-page .pr-event-title { grid-area: title; }
+  body.press-page .pr-event-date { grid-area: date; }
+  body.press-page .pr-event-location { grid-area: loc; justify-self: end; }
+}
+
+/* ==========================================================================
+   3 · MEDIA ARCHIVE — featured lead + filterable ledger
+   ========================================================================== */
+body.press-page .pr-archive { padding-block: clamp(48px, 5.2vw, 78px); border-top: 1px solid var(--sv-border-light-strong); }
+
+/* Featured lead — the most recent / notable appearance, text-forward.
+   Gold ledge + tag: the archive's one ceremonial callout (gold-dark for the
+   11px tag so it clears AA on ivory). */
+body.press-page .pr-featured {
+  display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: clamp(20px, 3vw, 56px);
+  padding: clamp(32px, 3.4vw, 44px) 0; margin-bottom: clamp(40px, 4.4vw, 60px);
+  border-top: 2px solid var(--sv-cinnabar); border-bottom: 1px solid var(--sv-border-light-strong);
+  text-decoration: none; color: inherit;
+}
+body.press-page .pr-featured__meta { display: flex; flex-direction: column; gap: 10px; }
+body.press-page .pr-featured__tag {
+  font: 600 11px/1 var(--sv-font); letter-spacing: 0.16em; text-transform: uppercase; color: var(--sv-cinnabar);
+}
+body.press-page .pr-featured__pub {
+  font: 600 13px/1.3 var(--sv-font); letter-spacing: 0.06em; color: var(--sv-ink);
+}
+body.press-page .pr-featured__date {
+  font: 500 13px/1.4 var(--sv-font); color: var(--sv-muted, #6E7169);
+}
+body.press-page .pr-featured__title {
+  margin: 0 0 14px; font: 500 clamp(22px, 2.2vw, 30px)/1.16 var(--sv-font);
+  letter-spacing: -0.012em; color: var(--sv-ink); text-wrap: balance;
+}
+body.press-page .pr-featured__desc {
+  margin: 0 0 18px; font: 400 16px/1.62 var(--sv-font); color: var(--sv-ink-2); max-width: 60ch;
+}
+body.press-page .pr-featured__read {
+  font: 600 12px/1 var(--sv-font); letter-spacing: 0.1em; text-transform: uppercase; color: var(--sv-ink);
+}
+body.press-page .pr-featured__read span { color: var(--sv-cinnabar); }
+body.press-page .pr-featured:hover .pr-featured__title { color: var(--sv-cinnabar-d); }
+@media (max-width: 720px) {
+  body.press-page .pr-featured { grid-template-columns: 1fr; gap: 14px; }
+}
+
+/* Toolbar: count + filters */
+body.press-page .pr-toolbar {
+  display: flex; flex-wrap: wrap; gap: 20px 32px; align-items: flex-end; justify-content: space-between;
+  padding-bottom: 18px; border-bottom: 1px solid var(--sv-ink);
+}
+body.press-page .pr-toolbar__meta { display: flex; flex-direction: column; gap: 6px; }
+body.press-page .pr-toolbar__label {
+  margin: 0; font: 600 11px/1.2 var(--sv-font); letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--sv-muted, #6E7169);
+}
+body.press-page .pr-toolbar__count {
+  margin: 0; font: 400 13px/1.3 var(--sv-font); color: var(--sv-ink-2);
+}
+body.press-page .pr-filters { display: flex; flex-wrap: wrap; gap: 18px 28px; }
+body.press-page .pr-filter-group { display: flex; align-items: center; gap: 10px; }
+body.press-page .pr-filter-label {
+  font: 600 11px/1.2 var(--sv-font); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--sv-muted, #6E7169);
+}
+body.press-page .pr-filter-select {
+  appearance: none; -webkit-appearance: none;
+  border: 0; border-bottom: 1px solid var(--sv-border-light-strong); border-radius: 0;
+  background: transparent;
+  padding: 6px 28px 6px 2px;
+  font: 500 14px/1.3 var(--sv-font); color: var(--sv-ink); cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%23182524' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 2px center;
+  transition: border-color .15s ease;
+}
+body.press-page .pr-filter-select:hover { border-color: var(--sv-ink); }
+body.press-page .pr-filter-select:focus-visible { outline: 2px solid var(--sv-cinnabar); outline-offset: 2px; }
+@media (max-width: 720px) {
+  body.press-page .pr-toolbar { flex-direction: column; align-items: stretch; }
+  body.press-page .pr-filters { width: 100%; gap: 14px 20px; }
+  body.press-page .pr-filter-group { width: 100%; min-width: 0; }
+  body.press-page .pr-filter-select { flex: 1 1 auto; width: 100%; min-width: 0; text-overflow: ellipsis; }
+}
+
+/* The archive ledger — restyle of the existing .press-row markup */
+body.press-page .press-list { display: block; }
+body.press-page .press-row { display: block; }
+body.press-page .press-row > a,
+body.press-page .press-row > .press-row__item {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 150px;
+  gap: clamp(20px, 3vw, 48px); align-items: baseline;
+  padding: 32px clamp(18px, 2vw, 28px); border-bottom: 1px solid var(--sv-border-light);
+  text-decoration: none; color: inherit;
+  transition: background .15s ease;
+}
+body.press-page .press-row > a:hover { background: rgba(122, 175, 175, 0.10); }
+body.press-page .press-row > .press-row__item--archived { cursor: pointer; }
+body.press-page .press-row > .press-row__item--inactive { cursor: default; }
+body.press-page .press-row[hidden] { display: none; }
+
+body.press-page .press-publication {
+  font: 600 11px/1.4 var(--sv-font); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--sv-ink); align-self: start; padding-top: 3px;
+}
+body.press-page .press-row__content { min-width: 0; }
+body.press-page .press-type-line { display: block; margin-bottom: 10px; }
+body.press-page .press-tag {
+  display: inline-block;
+  font: 600 10.5px/1 var(--sv-font); letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--sv-muted, #6E7169);
+}
+body.press-page .press-row > a:hover .press-tag { color: var(--sv-cinnabar); }
+body.press-page .press-headline {
+  display: block; margin-bottom: 8px;
+  font: 500 19px/1.28 var(--sv-font); letter-spacing: -0.01em; color: var(--sv-ink);
+  text-wrap: pretty; transition: color .15s ease;
+}
+body.press-page .press-row > a:hover .press-headline { color: var(--sv-cinnabar-d); }
+body.press-page .press-row__summary {
+  display: block; margin: 0;
+  font: 400 15px/1.6 var(--sv-font); color: var(--sv-ink-2); max-width: 68ch;
+}
+body.press-page .press-row__summary em { font-style: italic; }
+body.press-page .press-row__meta {
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-start;
+  justify-self: start; text-align: left; padding-top: 3px;
+}
+body.press-page .press-attribution {
+  font: 600 10.5px/1.2 var(--sv-font); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--sv-muted, #6E7169);
+}
+body.press-page .press-date {
+  font: 500 13px/1.3 var(--sv-font); color: var(--sv-ink); font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 880px) {
+  body.press-page .press-row > a,
+  body.press-page .press-row > .press-row__item {
+    grid-template-columns: 1fr;
+    gap: 10px; padding: 24px 0;
+  }
+  body.press-page .press-publication { padding-top: 0; }
+  body.press-page .press-row__meta {
+    flex-direction: row; gap: 14px; align-items: baseline; justify-self: start;
+  }
+}
+
+/* Load more — match the centered, quiet ledger controls used above. */
+body.press-page .pr-more-wrap {
+  display: flex; justify-content: center;
+  margin-top: 0; padding: 22px 0 4px;
+}
+body.press-page .pr-more {
+  appearance: none; background: none; cursor: pointer;
+  font: 600 12px/1 var(--sv-font); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--sv-cinnabar);
+  padding: 10px 22px; border: 1px solid var(--sv-border-light-strong); border-radius: 0;
+  transition: border-color .15s ease, color .15s ease;
+}
+body.press-page .pr-more:hover { border-color: var(--sv-cinnabar); }
+body.press-page .pr-more[hidden],
+body.press-page .pr-more-wrap:has(.pr-more[hidden]) { display: none; }
+
+/* ==========================================================================
+   4 · DISCLOSURES
+   ========================================================================== */
+body.press-page .pr-disclosures { background: var(--sv-stone); border-top: 1px solid var(--sv-border-light-strong); }
+body.press-page .pr-disclosures__inner { padding-block: clamp(40px, 4.4vw, 60px); max-width: var(--page-max); margin-inline: auto; padding-inline: var(--pad-x); }
+body.press-page .pr-disclosures__label {
+  margin: 0 0 16px; font: 600 11px/1.2 var(--sv-font);
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--sv-muted, #6E7169);
+}
+body.press-page .pr-disclosures__body {
+  margin: 0; font: 400 13px/1.7 var(--sv-font); color: var(--sv-ink-2); max-width: none;
+}
+
+
+/* ==========================================================================
+   Media hero — reuses the shared homepage layered hero system (grayscale
+   square image + white reference panel + offset cinnabar block). media.html
+   carries body.homepage, so the body.homepage .sv-hero__* rules apply here
+   unchanged; the square carries the FII conference photograph, cropped
+   toward the stage and panelists.
+   ========================================================================== */
+body.press-page .media-hero .sv-hero__image img { object-position: center 38%; }
+
+/* Client directive: no decorative horizontal rules/bars. */
+:where(hr, [role="separator"], [class*="__rule"], [class*="-rule"], [class*="__divider"], [class*="-divider"], [class*="topline"], [class*="separator"]):not(svg):not(path):not(img) {
+  display: none !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  background-image: none !important;
+}
+:where([class*="eyebrow"], [class*="kicker"], [class*="label"])::before,
+:where([class*="eyebrow"], [class*="kicker"], [class*="label"])::after {
+  content: none !important;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* ==========================================================================
+   Page divider standard — warm xuan hairline
+   Matches the supplied reference: one full-width, 1px warm paper rule.
+   ========================================================================== */
+:root {
+  --sv-page-divider-color: rgba(216, 206, 176, 0.82);
+  --sv-page-divider-thickness: 1px;
+  --sv-page-divider-max: var(--page-max, 1684px);
+  --sv-page-divider-pad: var(--pad-x, clamp(24px, 8.9vw, 182px));
+}
+
+:where(
+  hr,
+  [role="separator"],
+  .section-divider,
+  .principles-rule,
+  .home-cdd__rule,
+  .strategy-section-intro__divider,
+  .strategy-section-intro__rule,
+  .strategy-rotation__divider,
+  .strategy-rotation__rule,
+  .opp-lead__rule,
+  .tss-row__bar,
+  .ip__seal,
+  .tss-closer__seal,
+  .cdd-arc__closer-seal,
+  .cdd-arc__seal-rule,
+  .cp-hero__title-rule,
+  .cp-hero__divider,
+  .cp-routing-card__rule,
+  .cp-section-head__rule,
+  .ogeo__divider
+):not(svg):not(path):not(img) {
+  display: block !important;
+  width: min(calc(100% - (2 * var(--sv-page-divider-pad))), var(--sv-page-divider-max)) !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: clamp(56px, 6.3vw, 129px) auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-top: var(--sv-page-divider-thickness) solid var(--sv-page-divider-color) !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  overflow: hidden !important;
+}
+
+main > section + section {
+  border-top-color: var(--sv-page-divider-color) !important;
+  border-top-width: var(--sv-page-divider-thickness) !important;
+}
+
+/* ==========================================================================
+   FINAL NO HORIZONTAL RULES / BARS — client directive
+   Suppresses decorative horizontal rule elements and section hairlines.
+   ========================================================================== */
+:where(
+  hr,
+  [role="separator"],
+  [class*="__rule"],
+  [class*="-rule"],
+  [class*="rule-"],
+  [class*="__divider"],
+  [class*="-divider"],
+  [class*="divider-"],
+  [class*="topline"],
+  [class*="separator"]
+):not(svg):not(path):not(img):not(input):not(textarea):not(select) {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  overflow: hidden !important;
+}
+
+:where(main > section + section, .sv-hero__right, .cdd-intro__bar, .cdd-arc__list, .cdd-arc__row, .cdd-stat, .research-sub) {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+:where([class*="eyebrow"], [class*="kicker"], [class*="label"], [class*="heading"], [class*="title"], [class*="intro"], [class*="hero"], [class*="section"])::before,
+:where([class*="eyebrow"], [class*="kicker"], [class*="label"], [class*="heading"], [class*="title"], [class*="intro"], [class*="hero"], [class*="section"])::after {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+:where([class*="eyebrow"], [class*="kicker"], [class*="label"])::before,
+:where([class*="eyebrow"], [class*="kicker"], [class*="label"])::after {
+  content: none !important;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+/* 2026-07-10 · Match interior hero height to the homepage masthead. */
+@media (min-width: 981px) {
+  body.press-page .media-hero .sv-hero__inner { min-height: 650px; }
+}
+
+/* 2026-07-11 · Hero cards/boxes: restore depth on media hero support boxes. */
+body.press-page :is(.sv-hero__field, .sv-hero__panel) {
+  box-shadow: 0 18px 42px rgba(23, 28, 28, 0.14) !important;
+}
+
+.press-row__cta {
+  display: inline-flex;
+  margin-left: 12px;
+  color: var(--sv-cinnabar, #C93B2A);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
