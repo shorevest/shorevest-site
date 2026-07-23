@@ -1,0 +1,83 @@
+name: Import clean public website
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create public-only website snapshot
+        run: |
+          rm -rf /tmp/shorevest-source
+          git clone --depth=1 https://github.com/shorevest/website.git /tmp/shorevest-source
+
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name .git \
+            ! -name .github \
+            -exec rm -rf {} +
+
+          rsync -a /tmp/shorevest-source/ ./ \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='api/' \
+            --exclude='app/' \
+            --exclude='docs/' \
+            --exclude='drafts/' \
+            --exclude='employee-portal/' \
+            --exclude='infra/' \
+            --exclude='internal-preview/' \
+            --exclude='scripts/' \
+            --exclude='server/' \
+            --exclude='services/' \
+            --exclude='tests/' \
+            --exclude='.env.example' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='README.md' \
+            --exclude='_headers' \
+            --exclude='CNAME' \
+            --exclude='*employee-portal*' \
+            --exclude='*shorevest-one*'
+
+          mkdir -p employee-portal
+
+          cat > employee-portal/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="robots" content="noindex">
+            <title>ShoreVest One</title>
+            <script>
+              location.replace(
+                "https://shorevest-one-bvcdgkf9bfdjhkd4.eastasia-01.azurewebsites.net/" +
+                location.hash
+              );
+            </script>
+          </head>
+          <body>
+            <p>Redirecting to ShoreVest One…</p>
+          </body>
+          </html>
+          HTML
+
+          cat > README.md <<'MD'
+          # ShoreVest Website
+
+          Public marketing website for ShoreVest.
+          MD
+
+          touch .nojekyll
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Import clean public website snapshot"
+          git push origin main
