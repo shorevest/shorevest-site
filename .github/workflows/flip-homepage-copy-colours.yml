@@ -1,0 +1,70 @@
+name: One-time homepage copy colour update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/flip-homepage-copy-colours.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-homepage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Apply cinnabar copy boxes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path('assets/css/homepage-rebuild.css')
+          css = css_path.read_text(encoding='utf-8')
+          marker = '/* 2026-07-29: cinnabar copy boxes requested for homepage firm and research statements */'
+          override = '''
+
+/* 2026-07-29: cinnabar copy boxes requested for homepage firm and research statements */
+body.homepage .home-firm-preview .home-firm-preview__statement > p,
+body.homepage .sv-cdd__desc {
+  background: var(--sv-cinnabar);
+  color: var(--sv-on-cinnabar);
+  padding: clamp(22px, 2.4vw, 32px);
+}
+'''
+          if marker not in css:
+              css = css.rstrip() + override + '\n'
+              css_path.write_text(css, encoding='utf-8')
+
+          index_path = Path('index.html')
+          index = index_path.read_text(encoding='utf-8')
+          import re
+          index = re.sub(
+              r'assets/css/homepage-rebuild\.css\?v=[^"\']+',
+              'assets/css/homepage-rebuild.css?v=20260729-copy-box-colours',
+              index,
+              count=1,
+          )
+          index_path.write_text(index, encoding='utf-8')
+          PY
+
+      - name: Remove one-time workflow
+        run: rm -f .github/workflows/flip-homepage-copy-colours.yml
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/css/homepage-rebuild.css index.html .github/workflows/flip-homepage-copy-colours.yml
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git commit -m "Flip homepage copy boxes to cinnabar"
+          git push origin main
