@@ -1,0 +1,45 @@
+name: Fix Strategy hero to previous homepage image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-strategy-hero-correct-image.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use the previous homepage hero image
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          css = Path('assets/css/strategy-rebuild.css')
+          text = css.read_text()
+          text = text.replace(
+              'url("../img/trees/home-hero-metasequoia-sq.jpg") center / cover no-repeat !important;',
+              'url("../../max-zhang-n49ciNUwej8-unsplash.jpg") center / cover no-repeat !important;'
+          )
+          css.write_text(text)
+
+          page = Path('strategy/index.html')
+          html = page.read_text()
+          html = html.replace(
+              'assets/css/strategy-rebuild.css?v=20260729-former-home-hero',
+              'assets/css/strategy-rebuild.css?v=20260729-max-zhang-hero'
+          )
+          page.write_text(html)
+          PY
+      - name: Commit update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/css/strategy-rebuild.css strategy/index.html
+          git commit -m "Use previous homepage image on Strategy hero"
+          git push
