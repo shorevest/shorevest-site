@@ -1,5 +1,5 @@
 (function () {
-  var VERSION = "20260722-cn-serif-unify";
+  var VERSION = "20260729-visual-review-2";
 
   function removeEmptyLegacyToken() {
     try {
@@ -45,13 +45,10 @@
 
   function ensureFavicons() {
     if (!document.head) return;
-
-    // Keep one consistent icon set after navigation or browser page restoration.
     var existing = document.head.querySelectorAll(
       'link[rel~="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"], link[rel="mask-icon"], link[rel="manifest"]'
     );
     for (var i = 0; i < existing.length; i += 1) existing[i].remove();
-
     ICONS.forEach(function (icon) {
       var link = document.createElement("link");
       link.setAttribute("data-sv-favicon-guard", "true");
@@ -63,9 +60,17 @@
     });
   }
 
+  function ensureVisualReviewOverrides() {
+    if (!document.head || document.querySelector('link[data-sv-visual-review="true"]')) return;
+    var stylesheet = document.createElement("link");
+    stylesheet.rel = "stylesheet";
+    stylesheet.href = base + "assets/css/visual-review-overrides.css?v=" + VERSION;
+    stylesheet.setAttribute("data-sv-visual-review", "true");
+    document.head.appendChild(stylesheet);
+  }
+
   function ensureChineseCopyOverrides() {
     if (!document.head || !isChinesePage() || document.querySelector('script[data-sv-cn-copy="true"]')) return;
-
     var copyScript = document.createElement("script");
     copyScript.src = base + "assets/js/chinese-copy-overrides.js?v=" + VERSION;
     copyScript.defer = true;
@@ -75,10 +80,8 @@
 
   function ensureChineseFontUniformity() {
     if (!document.head || !isChinesePage()) return;
-
     document.documentElement.classList.add("sv-cn-font-unified");
     if (document.querySelector('link[data-sv-cn-font="true"]')) return;
-
     var fontStylesheet = document.createElement("link");
     fontStylesheet.rel = "stylesheet";
     fontStylesheet.href = base + "assets/css/chinese-font-uniform.css?v=" + VERSION;
@@ -98,7 +101,6 @@
 
   function ensureWebsiteSearchSignals() {
     if (!document.head || !isCanonicalHomepage()) return;
-
     var siteName = document.head.querySelector('meta[property="og:site_name"]');
     if (!siteName) {
       siteName = document.createElement("meta");
@@ -106,10 +108,8 @@
       document.head.appendChild(siteName);
     }
     siteName.setAttribute("content", "ShoreVest");
-
     var existing = document.head.querySelector('script[data-sv-website-schema="true"]');
     if (existing) return;
-
     var schema = document.createElement("script");
     schema.type = "application/ld+json";
     schema.setAttribute("data-sv-website-schema", "true");
@@ -128,22 +128,18 @@
   function ensureInvestorPortalEmailLogin() {
     var form = document.getElementById("vdr-login-form");
     if (!form) return;
-
     var emailField = form.querySelector('input[name="email"]');
     if (!emailField) return;
-
     var formGroup = emailField.closest(".form-group");
     if (formGroup) {
       formGroup.hidden = false;
       formGroup.removeAttribute("hidden");
       formGroup.removeAttribute("aria-hidden");
     }
-
     emailField.disabled = false;
     emailField.required = true;
     emailField.type = "email";
     emailField.autocomplete = "email";
-
     var isChinese = isChinesePage();
     var title = document.querySelector(".ip-signin__title");
     var note = document.querySelector(".ip-signin__note");
@@ -151,24 +147,19 @@
     if (note) note.textContent = isChinese
       ? "已获授权的投资者将直接进入 ShoreVest iDeals 数据室。"
       : "Authorized investors are sent directly into the ShoreVest iDeals data room.";
-
     if (form.getAttribute("data-sv-email-login-ready") === "true") return;
     form.setAttribute("data-sv-email-login-ready", "true");
-
     var error = formGroup ? formGroup.querySelector(".error") : null;
     function clearError() {
       if (formGroup) formGroup.classList.remove("has-error");
       if (error) error.textContent = "";
       emailField.setCustomValidity("");
     }
-
     emailField.addEventListener("input", clearError);
     emailField.addEventListener("change", clearError);
-
     form.addEventListener("submit", function (event) {
       event.preventDefault();
       event.stopImmediatePropagation();
-
       var email = emailField.value.trim();
       var valid = email !== "" && emailField.checkValidity();
       if (!valid) {
@@ -181,24 +172,26 @@
         emailField.focus();
         return;
       }
-
       window.location.href = "https://app.idealsvdr.com/projects/all/documents?email=" + encodeURIComponent(email);
     }, true);
   }
 
   ensureFavicons();
+  ensureVisualReviewOverrides();
   ensureChineseCopyOverrides();
   ensureChineseFontUniformity();
   ensureWebsiteSearchSignals();
   ensureInvestorPortalEmailLogin();
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", ensureFavicons);
+    document.addEventListener("DOMContentLoaded", ensureVisualReviewOverrides);
     document.addEventListener("DOMContentLoaded", ensureChineseCopyOverrides);
     document.addEventListener("DOMContentLoaded", ensureChineseFontUniformity);
     document.addEventListener("DOMContentLoaded", ensureWebsiteSearchSignals);
     document.addEventListener("DOMContentLoaded", ensureInvestorPortalEmailLogin);
   }
   window.addEventListener("pageshow", ensureFavicons);
+  window.addEventListener("pageshow", ensureVisualReviewOverrides);
   window.addEventListener("pageshow", ensureChineseCopyOverrides);
   window.addEventListener("pageshow", ensureChineseFontUniformity);
   window.addEventListener("pageshow", ensureWebsiteSearchSignals);
