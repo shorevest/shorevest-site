@@ -1,5 +1,5 @@
 (function () {
-  var VERSION = "20260729-visual-review-2";
+  var VERSION = "20260729-visual-review-3";
 
   function removeEmptyLegacyToken() {
     try {
