@@ -1,0 +1,58 @@
+name: Apply visual review overrides
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-visual-review-overrides.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load shared visual overrides on all pages
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          js = Path('assets/js/favicon-guard.js')
+          text = js.read_text()
+          marker = '  ensureFavicons();\n'
+          injection = '''  function ensureVisualReviewOverrides() {
+            if (!document.head || document.querySelector('link[data-sv-visual-review="true"]')) return;
+            var stylesheet = document.createElement("link");
+            stylesheet.rel = "stylesheet";
+            stylesheet.href = base + "assets/css/visual-review-overrides.css?v=20260729-visual-review-1";
+            stylesheet.setAttribute("data-sv-visual-review", "true");
+            document.head.appendChild(stylesheet);
+          }
+
+'''
+          if 'function ensureVisualReviewOverrides()' not in text:
+              text = text.replace(marker, injection + marker, 1)
+              text = text.replace('  ensureFavicons();\n', '  ensureFavicons();\n  ensureVisualReviewOverrides();\n', 1)
+              text = text.replace('    document.addEventListener("DOMContentLoaded", ensureFavicons);\n', '    document.addEventListener("DOMContentLoaded", ensureFavicons);\n    document.addEventListener("DOMContentLoaded", ensureVisualReviewOverrides);\n', 1)
+              text = text.replace('  window.addEventListener("pageshow", ensureFavicons);\n', '  window.addEventListener("pageshow", ensureFavicons);\n  window.addEventListener("pageshow", ensureVisualReviewOverrides);\n', 1)
+              js.write_text(text)
+
+          for path in [Path('index.html'), Path('cn/index.html')]:
+              if not path.exists():
+                  continue
+              html = path.read_text()
+              link = '<link rel="stylesheet" href="assets/css/visual-review-overrides.css?v=20260729-visual-review-1">'
+              if 'visual-review-overrides.css' not in html:
+                  html = html.replace('</head>', link + '\n</head>', 1)
+                  path.write_text(html)
+          PY
+      - name: Commit applied changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/favicon-guard.js index.html cn/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Load visual review overrides site-wide"
+          git push
