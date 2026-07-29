@@ -1,0 +1,94 @@
+name: Apply visual review directly to all public pages
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-visual-review-directly.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add cache-busted stylesheet to every ShoreVest page
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          version = '20260729-visual-review-3'
+          direct_link = f'<link rel="stylesheet" href="/assets/css/visual-review-overrides.css?v={version}" data-sv-visual-review="direct">'
+          changed = []
+          checked = []
+
+          for path in sorted(Path('.').rglob('*.html')):
+              parts = set(path.parts)
+              if '.git' in parts or 'node_modules' in parts:
+                  continue
+              text = path.read_text(encoding='utf-8')
+              if not re.search(r'<body\b[^>]*class=["\'][^"\']*\bhomepage\b', text, re.I):
+                  continue
+
+              checked.append(path)
+              new = re.sub(
+                  r'(assets/js/favicon-guard\.js)(?:\?v=[^"\']*)?',
+                  rf'\1?v={version}',
+                  text,
+              )
+
+              if 'visual-review-overrides.css' not in new:
+                  if '</head>' not in new:
+                      raise SystemExit(f'Missing </head> in {path}')
+                  new = new.replace('</head>', direct_link + '\n</head>', 1)
+
+              if new != text:
+                  path.write_text(new, encoding='utf-8')
+                  changed.append(path)
+
+          if not checked:
+              raise SystemExit('No homepage-shell HTML pages found')
+
+          failures = []
+          for path in checked:
+              text = path.read_text(encoding='utf-8')
+              if direct_link not in text:
+                  failures.append(f'{path}: direct stylesheet missing')
+              if 'favicon-guard.js' in text and f'favicon-guard.js?v={version}' not in text:
+                  failures.append(f'{path}: stale favicon-guard cache key')
+
+          if failures:
+              raise SystemExit('\n'.join(failures))
+
+          print(f'Validated {len(checked)} homepage-shell HTML pages; changed {len(changed)}.')
+          for path in changed:
+              print(path)
+          PY
+
+      - name: Verify Strategy image and visual stylesheet
+        run: |
+          set -euo pipefail
+          test -s max-zhang-n49ciNUwej8-unsplash.jpg
+          test -s assets/css/visual-review-overrides.css
+          grep -q '/max-zhang-n49ciNUwej8-unsplash.jpg' assets/css/visual-review-overrides.css
+          grep -q 'font-size: 14px' assets/css/visual-review-overrides.css
+          grep -q 'filter: none' assets/css/visual-review-overrides.css
+
+      - name: Commit rollout
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- '*.html'
+          if git diff --cached --quiet; then
+            echo 'All public pages already load the visual review stylesheet directly.'
+            exit 0
+          fi
+          git commit -m 'Load visual review updates directly on all public pages'
+          git push
