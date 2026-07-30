@@ -1,0 +1,32 @@
+name: Deploy Chrome top scroll boundary
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/deploy-top-scroll-boundary.yml'
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add boundary guard to homepage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          tag = '<script src="/assets/js/top-scroll-boundary.js?v=20260730-chrome-top-6" defer></script>'
+          if tag not in s:
+              s = s.replace('</head>', f'{tag}\n</head>')
+          s = s.replace('visual-review-overrides.css?v=20260730-contained-scroll-fix-5', 'visual-review-overrides.css?v=20260730-chrome-top-6')
+          p.write_text(s)
+          PY
+      - name: Commit deployment
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Deploy Chrome top boundary guard'
+          git push
