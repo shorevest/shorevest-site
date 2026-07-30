@@ -1,5 +1,5 @@
 (function () {
-  var VERSION = "20260729-visual-review-3";
+  var VERSION = "20260730-scroll-recovery-10";
 
   function removeEmptyLegacyToken() {
     try {
@@ -61,7 +61,7 @@
   }
 
   function ensureVisualReviewOverrides() {
-    if (!document.head || document.querySelector('link[data-sv-visual-review="true"]')) return;
+    if (!document.head || document.querySelector('link[data-sv-visual-review]')) return;
     var stylesheet = document.createElement("link");
     stylesheet.rel = "stylesheet";
     stylesheet.href = base + "assets/css/visual-review-overrides.css?v=" + VERSION;
