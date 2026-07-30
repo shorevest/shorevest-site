@@ -1,0 +1,29 @@
+name: Apply top overscroll fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bump-scroll-css-v4.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-homepage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Bust CSS cache and remove one-time workflow
+        run: |
+          sed -i 's/visual-review-overrides.css?v=20260730-scroll-fix-3/visual-review-overrides.css?v=20260730-top-overscroll-fix-4/g' index.html
+          rm .github/workflows/bump-scroll-css-v4.yml
+      - name: Commit deployment reference
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/bump-scroll-css-v4.yml
+          git commit -m 'Deploy actual top overscroll canvas fix'
+          git push
