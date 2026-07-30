@@ -17,7 +17,7 @@ html {
 html,
 body,
 * {
-  overscroll-behavior: none;
+  overscroll-behavior: auto;
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -122,7 +122,7 @@ body.homepage {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: auto;
 }
 body.homepage img { max-width: 100%; display: block; }
 body.homepage a { color: inherit; }
