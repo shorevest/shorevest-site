@@ -110,29 +110,24 @@ html body.homepage.strategy-page .sx-hero__media:hover .sx-hero__panel {
   }
 }
 
-/* Eliminate viewport rubber-banding by making the page body the contained
-   vertical scroller. The root viewport itself never scrolls, so there is no
-   extra space to reveal above the fixed header. Normal wheel, trackpad, touch,
-   keyboard and anchor scrolling continue inside the body scroller. */
-html {
-  width: 100% !important;
-  height: 100% !important;
+/* Restore native browser scrolling and neutralise any stale page-lock state. */
+html,
+body,
+* {
+  overscroll-behavior: auto !important;
+}
+
+html,
+body {
+  height: auto !important;
   min-height: 100% !important;
-  overflow: hidden !important;
-  overscroll-behavior: none !important;
-  background: #FCF9F1 !important;
+  overflow-y: auto !important;
+  touch-action: pan-x pan-y !important;
 }
 
 body.homepage {
-  width: 100% !important;
-  height: 100% !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  position: relative !important;
-  overflow-x: hidden !important;
+  position: static !important;
   overflow-y: auto !important;
-  overscroll-behavior: none !important;
-  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto !important;
   touch-action: pan-y !important;
-  background: var(--sv-dark-footer, #20211F) !important;
 }
