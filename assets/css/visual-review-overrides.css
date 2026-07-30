@@ -110,24 +110,25 @@ html body.homepage.strategy-page .sx-hero__media:hover .sx-hero__panel {
   }
 }
 
-/* Restore native browser scrolling and neutralise any stale page-lock state. */
-html,
-body,
-* {
-  overscroll-behavior: auto !important;
-}
-
-html,
-body {
+/* Top overscroll fix.
+   The base stylesheet paints both root elements footer-dark, which is what the
+   browser exposes when it rubber-bands above the page. Keep the document body
+   dark for the footer, but paint the root canvas the same ivory as the header.
+   This removes the dark strip at the top without locking normal page scrolling. */
+html {
   height: auto !important;
   min-height: 100% !important;
   overflow-y: auto !important;
-  touch-action: pan-x pan-y !important;
+  overscroll-behavior-y: none !important;
+  background: #FCF9F1 !important;
 }
 
 body.homepage {
-  position: static !important;
-  overflow-y: auto !important;
-  overscroll-behavior-y: auto !important;
+  min-height: 100% !important;
+  position: relative !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  overscroll-behavior-y: none !important;
   touch-action: pan-y !important;
+  background: var(--sv-dark-footer, #20211F) !important;
 }
