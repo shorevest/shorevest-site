@@ -1,0 +1,37 @@
+name: Deploy contained scroll fix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/deploy-contained-scroll-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Bust homepage stylesheet cache
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = '/assets/css/visual-review-overrides.css?v=20260730-top-overscroll-fix-4'
+          new = '/assets/css/visual-review-overrides.css?v=20260730-contained-scroll-fix-5'
+          if old not in s:
+              raise SystemExit(f'Expected stylesheet reference not found: {old}')
+          p.write_text(s.replace(old, new, 1))
+          PY
+          rm .github/workflows/deploy-contained-scroll-fix.yml
+      - name: Commit deployment
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/deploy-contained-scroll-fix.yml
+          git commit -m 'Deploy contained homepage scrolling'
+          git push
