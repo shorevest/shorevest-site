@@ -110,25 +110,29 @@ html body.homepage.strategy-page .sx-hero__media:hover .sx-hero__panel {
   }
 }
 
-/* Top overscroll fix.
-   The base stylesheet paints both root elements footer-dark, which is what the
-   browser exposes when it rubber-bands above the page. Keep the document body
-   dark for the footer, but paint the root canvas the same ivory as the header.
-   This removes the dark strip at the top without locking normal page scrolling. */
+/* Eliminate viewport rubber-banding by making the page body the contained
+   vertical scroller. The root viewport itself never scrolls, so there is no
+   extra space to reveal above the fixed header. Normal wheel, trackpad, touch,
+   keyboard and anchor scrolling continue inside the body scroller. */
 html {
-  height: auto !important;
+  width: 100% !important;
+  height: 100% !important;
   min-height: 100% !important;
-  overflow-y: auto !important;
-  overscroll-behavior-y: none !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
   background: #FCF9F1 !important;
 }
 
 body.homepage {
-  min-height: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
   position: relative !important;
   overflow-x: hidden !important;
-  overflow-y: visible !important;
-  overscroll-behavior-y: none !important;
+  overflow-y: auto !important;
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: touch;
   touch-action: pan-y !important;
   background: var(--sv-dark-footer, #20211F) !important;
 }
