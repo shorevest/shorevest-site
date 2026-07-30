@@ -1,0 +1,52 @@
+name: Force root Chrome scrolling
+on:
+  push:
+    paths:
+      - '.github/workflows/force-root-chrome-scroll.yml'
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make the document element the only vertical scroller
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          css = Path('assets/css/homepage-rebuild.css')
+          s = css.read_text()
+          s = s.replace(
+              '  scrollbar-gutter: stable;\n}',
+              '  scrollbar-gutter: stable;\n  min-height: 100%;\n  overflow-x: hidden;\n  overflow-y: auto;\n}'
+          )
+          s = s.replace(
+              '  overflow-x: hidden;\n  overscroll-behavior-y: auto;\n',
+              '  overflow: visible;\n'
+          )
+          css.write_text(s)
+
+          index = Path('index.html')
+          s = index.read_text()
+          s = re.sub(
+              r"<script>document\.write\('<link rel=\"stylesheet\" href=\"assets/css/homepage-rebuild\.css\?v=[^\"]+\">'\);</script>",
+              '<link rel="stylesheet" href="/assets/css/homepage-rebuild.css?v=20260730-root-scroll-9">',
+              s
+          )
+          s = re.sub(r'visual-review-overrides\.css\?v=[^"\']+', 'visual-review-overrides.css?v=20260730-root-scroll-9', s)
+          s = re.sub(r'sv-navigation\.js\?v=[^"\']+', 'sv-navigation.js?v=20260730-root-scroll-9', s)
+
+          anchor = '<link rel="stylesheet" href="/assets/css/visual-review-overrides.css?v=20260730-root-scroll-9" data-sv-visual-review="direct">'
+          guard = '''\n<style id="sv-root-scroll-unlock">\n  html {\n    height: auto !important;\n    min-height: 100% !important;\n    overflow-x: hidden !important;\n    overflow-y: auto !important;\n    overscroll-behavior: auto !important;\n    touch-action: auto !important;\n  }\n  html body.homepage {\n    height: auto !important;\n    min-height: 100% !important;\n    position: static !important;\n    inset: auto !important;\n    overflow: visible !important;\n    overscroll-behavior: auto !important;\n    touch-action: auto !important;\n  }\n</style>\n<script id="sv-root-scroll-unlock-script">\n(function () {\n  function unlockPageScroll() {\n    var root = document.documentElement;\n    root.style.setProperty('height', 'auto', 'important');\n    root.style.setProperty('min-height', '100%', 'important');\n    root.style.setProperty('overflow-x', 'hidden', 'important');\n    root.style.setProperty('overflow-y', 'auto', 'important');\n    root.style.setProperty('overscroll-behavior', 'auto', 'important');\n    root.style.setProperty('touch-action', 'auto', 'important');\n    if (!document.body) return;\n    var body = document.body;\n    body.style.setProperty('height', 'auto', 'important');\n    body.style.setProperty('min-height', '100%', 'important');\n    body.style.setProperty('position', 'static', 'important');\n    body.style.setProperty('inset', 'auto', 'important');\n    body.style.setProperty('overflow', 'visible', 'important');\n    body.style.setProperty('overscroll-behavior', 'auto', 'important');\n    body.style.setProperty('touch-action', 'auto', 'important');\n  }\n  unlockPageScroll();\n  document.addEventListener('DOMContentLoaded', unlockPageScroll, { once: true });\n  window.addEventListener('pageshow', unlockPageScroll);\n})();\n</script>'''
+          if 'id="sv-root-scroll-unlock"' not in s:
+              s = s.replace(anchor, anchor + guard)
+          index.write_text(s)
+          PY
+          rm -f .github/workflows/force-root-chrome-scroll.yml
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add assets/css/homepage-rebuild.css index.html .github/workflows/force-root-chrome-scroll.yml
+          git commit -m "Force Chrome to use the root document scroller"
+          git push
