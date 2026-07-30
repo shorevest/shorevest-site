@@ -1,0 +1,56 @@
+name: Repair native Chrome scrolling
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-native-chrome-scroll.yml'
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove conflicting scroll containers and restore browser defaults
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          base = Path('assets/css/homepage-rebuild.css')
+          s = base.read_text()
+          s = s.replace(
+              "html,\nbody,\n* {\n  overscroll-behavior: none;\n}\n",
+              "html,\nbody,\n* {\n  overscroll-behavior: auto;\n}\n"
+          )
+          s = s.replace("  overscroll-behavior-y: none;\n", "  overscroll-behavior-y: auto;\n")
+          base.write_text(s)
+
+          override = Path('assets/css/visual-review-overrides.css')
+          s = override.read_text()
+          marker = '/* Restore native browser scrolling and neutralise any stale page-lock state. */'
+          if marker in s:
+              s = s.split(marker, 1)[0].rstrip() + '\n'
+          override.write_text(s)
+
+          nav = Path('assets/js/sv-navigation.js')
+          s = nav.read_text()
+          start = s.find('  // Preserve native vertical scrolling while clipping accidental horizontal')
+          end_marker = '  // Keep the current desktop navigation item visibly selected after page load.'
+          end = s.find(end_marker)
+          if start != -1 and end != -1 and end > start:
+              s = s[:start] + end_marker + s[end + len(end_marker):]
+          nav.write_text(s)
+
+          index = Path('index.html')
+          s = index.read_text()
+          import re
+          s = re.sub(r'homepage-rebuild\.css\?v=[^"\']+', 'homepage-rebuild.css?v=20260730-native-chrome-scroll-8', s)
+          s = re.sub(r'visual-review-overrides\.css\?v=[^"\']+', 'visual-review-overrides.css?v=20260730-native-chrome-scroll-8', s)
+          s = re.sub(r'sv-navigation\.js\?v=[^"\']+', 'sv-navigation.js?v=20260730-native-chrome-scroll-8', s)
+          index.write_text(s)
+          PY
+          rm -f .github/workflows/fix-native-chrome-scroll.yml
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add assets/css/homepage-rebuild.css assets/css/visual-review-overrides.css assets/js/sv-navigation.js index.html .github/workflows/fix-native-chrome-scroll.yml
+          git commit -m "Remove custom scroll locks and restore native Chrome scrolling"
+          git push
