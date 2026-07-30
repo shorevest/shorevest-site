@@ -1,0 +1,38 @@
+name: One-time scroll cache bust
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-scroll-cache-bust.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-homepage-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update stylesheet cache key
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = '/assets/css/visual-review-overrides.css?v=20260729-visual-review-3'
+          new = '/assets/css/visual-review-overrides.css?v=20260730-scroll-fix-3'
+          if old not in s:
+              raise SystemExit('Expected old stylesheet reference was not found')
+          p.write_text(s.replace(old, new), encoding='utf-8')
+          PY
+      - name: Commit homepage update and remove one-time workflow
+        run: |
+          rm .github/workflows/one-time-scroll-cache-bust.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/one-time-scroll-cache-bust.yml
+          git commit -m 'Bust homepage scroll stylesheet cache'
+          git push
