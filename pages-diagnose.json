@@ -1,0 +1,16 @@
+{
+  "url": "https://api.github.com/repos/shorevest/shorevest-site/pages",
+  "status": "errored",
+  "cname": null,
+  "custom_404": true,
+  "html_url": "https://shorevest.github.io/shorevest-site/",
+  "build_type": "legacy",
+  "source": {
+    "branch": "main",
+    "path": "/"
+  },
+  "public": true,
+  "protected_domain_state": null,
+  "pending_domain_unverified_at": null,
+  "https_enforced": true
+}

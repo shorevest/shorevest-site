@@ -1,0 +1,32 @@
+{
+  "url": "https://api.github.com/repos/shorevest/shorevest-site/pages/builds/1132813449",
+  "status": "building",
+  "error": {
+    "message": null
+  },
+  "pusher": {
+    "login": "nicolalalalalalalalala",
+    "id": 266096393,
+    "node_id": "U_kgDOD9xPCQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/266096393?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nicolalalalalalalalala",
+    "html_url": "https://github.com/nicolalalalalalalalala",
+    "followers_url": "https://api.github.com/users/nicolalalalalalalalala/followers",
+    "following_url": "https://api.github.com/users/nicolalalalalalalalala/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nicolalalalalalalalala/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nicolalalalalalalalala/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nicolalalalalalalalala/subscriptions",
+    "organizations_url": "https://api.github.com/users/nicolalalalalalalalala/orgs",
+    "repos_url": "https://api.github.com/users/nicolalalalalalalalala/repos",
+    "events_url": "https://api.github.com/users/nicolalalalalalalalala/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nicolalalalalalalalala/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "commit": "74669ad02fae9f37bc2af2a9d61728530fe92a12",
+  "duration": 0,
+  "created_at": "2026-08-04T23:19:27Z",
+  "updated_at": "2026-08-04T23:19:27Z"
+}
