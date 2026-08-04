@@ -1,0 +1,35 @@
+name: One-time live Team page check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/live-team-check.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    if: github.event.head_commit.message == 'Add one-time live Team page check'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch live Team pages and record result
+        shell: bash
+        run: |
+          set -euo pipefail
+          ts=$(date +%s)
+          curl -fsSL -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "https://shorevest.com/team/?_livecheck=${ts}" -o /tmp/team.html
+          curl -fsSL -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "https://shorevest.com/cn/team/?_livecheck=${ts}" -o /tmp/cn-team.html
+          en_new=no; en_old=no; cn_new=no; cn_old=no
+          grep -Fq 'Guangzhou, Shanghai, Beijing and Shenzhen' /tmp/team.html && en_new=yes || true
+          { grep -Fq 'Investment Committee members' /tmp/team.html || grep -Fq 'Offices across Greater China' /tmp/team.html; } && en_old=yes || true
+          grep -Fq '广州、上海、北京及深圳' /tmp/cn-team.html && cn_new=yes || true
+          { grep -Fq '投资委员会成员' /tmp/cn-team.html || grep -Fq '大中华区办公室' /tmp/cn-team.html; } && cn_old=yes || true
+          printf 'checked_at=%s\nen_new=%s\nen_old=%s\ncn_new=%s\ncn_old=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$en_new" "$en_old" "$cn_new" "$cn_old" > live-team-check.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add live-team-check.txt
+          git commit -m 'Record live Team page check' || exit 0
+          git push
