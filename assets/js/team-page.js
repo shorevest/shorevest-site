@@ -86,6 +86,28 @@
     group.setAttribute("aria-hidden", "true");
   };
 
+  const updatePlatformHighlights = () => {
+    const articles = Array.from(
+      document.querySelectorAll(".team-hero__statcard article"),
+    );
+    if (articles.length < 4) return;
+
+    const officeArticle = articles[2];
+    const officeLabel = officeArticle.querySelector("p");
+    const officeValue = officeArticle.querySelector("span");
+
+    if (officeLabel) {
+      officeLabel.textContent = isChinesePage ? "位于" : "Located in";
+    }
+    if (officeValue) {
+      officeValue.textContent = isChinesePage
+        ? "广州、上海、北京及深圳"
+        : "Guangzhou, Shanghai, Beijing and Shenzhen";
+    }
+
+    articles[3].remove();
+  };
+
   const getProfilesPerRow = (grid) => {
     const width = window.innerWidth;
     if (width <= TABLET_BREAKPOINT) return 1;
@@ -302,6 +324,7 @@
   const initAllGrids = () => {
     if (isChinesePage) document.body.classList.add("team-page--cn");
     applyEditorialSectionIntroStyles();
+    updatePlatformHighlights();
     hideIncompleteFunctionsGroup();
     const grids = Array.from(document.querySelectorAll("[data-team-grid]"));
     grids.forEach(initGrid);
