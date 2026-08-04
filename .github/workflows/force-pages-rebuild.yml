@@ -8,26 +8,69 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
 
 jobs:
   rebuild:
     runs-on: ubuntu-latest
     steps:
-      - name: Request fresh GitHub Pages build
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Request and verify fresh GitHub Pages build
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPOSITORY: ${{ github.repository }}
         run: |
-          set -euo pipefail
-          code=$(curl -sS -o /tmp/pages-build.json -w "%{http_code}" \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "X-GitHub-Api-Version: 2026-03-10" \
-            "https://api.github.com/repos/${GH_REPOSITORY}/pages/builds")
-          cat /tmp/pages-build.json || true
-          echo "HTTP ${code}"
-          test "${code}" = "201"
+          set -u
+          api="https://api.github.com/repos/${GH_REPOSITORY}/pages"
+          headers=(
+            -H "Accept: application/vnd.github+json"
+            -H "Authorization: Bearer ${GH_TOKEN}"
+            -H "X-GitHub-Api-Version: 2026-03-10"
+          )
+
+          request_code=$(curl -sS -o /tmp/pages-build-request.json -w "%{http_code}" \
+            -X POST "${headers[@]}" "${api}/builds")
+
+          status="unknown"
+          commit="unknown"
+          error=""
+          latest_code=""
+
+          for i in $(seq 1 24); do
+            sleep 5
+            latest_code=$(curl -sS -o /tmp/pages-build-latest.json -w "%{http_code}" \
+              "${headers[@]}" "${api}/builds/latest")
+            if [ "${latest_code}" = "200" ]; then
+              status=$(jq -r '.status // "unknown"' /tmp/pages-build-latest.json)
+              commit=$(jq -r '.commit // "unknown"' /tmp/pages-build-latest.json)
+              error=$(jq -r '.error.message // ""' /tmp/pages-build-latest.json)
+              if [ "${status}" = "built" ] || [ "${status}" = "errored" ]; then
+                break
+              fi
+            fi
+          done
+
+          {
+            echo "request_http=${request_code}"
+            echo "latest_http=${latest_code}"
+            echo "status=${status}"
+            echo "commit=${commit}"
+            echo "error=${error}"
+            echo "checked_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > pages-build-status.txt
+
+          cat pages-build-status.txt
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages-build-status.txt
+          git commit -m "Record forced Pages rebuild status" || true
+          git push origin HEAD:main
+
+          test "${request_code}" = "201"
+          test "${latest_code}" = "200"
+          test "${status}" = "built"
