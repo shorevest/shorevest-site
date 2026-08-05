@@ -1,6 +1,6 @@
 request_http=201
 latest_http=200
-status=built
-commit=2b7e20a985d6cf6877052ef595b7f8532d392a49
-error=
-checked_at=2026-08-04T23:11:09Z
+status=errored
+commit=ca789115e43ae811ca1cbe780274daa339ac3b45
+error=Page build failed.
+checked_at=2026-08-05T02:34:44Z
