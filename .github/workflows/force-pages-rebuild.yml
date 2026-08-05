@@ -75,4 +75,4 @@ jobs:
           test "${latest_code}" = "200"
           test "${status}" = "built"
 
-# Triggered 2026-08-05 after Strategy hero image update
+# Triggered 2026-08-05 after clean Strategy hero deployment cleanup
