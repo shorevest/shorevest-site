@@ -73,15 +73,14 @@ html body.homepage img {
   mix-blend-mode: normal !important;
 }
 
-/* Strategy: use the actual previous homepage hero photograph, not the current
-   metasequoia image. Absolute root path prevents relative-path ambiguity. */
+/* Strategy: use the requested Yang Miao photograph. Absolute root path prevents relative-path ambiguity. */
 html body.homepage.strategy-page .sx-hero__panel,
 html body.homepage.strategy-page .sx-hero__media:hover .sx-hero__panel {
   filter: none !important;
   -webkit-filter: none !important;
   background-image:
     linear-gradient(180deg, rgba(24, 37, 36, 0.04), rgba(24, 37, 36, 0.10)),
-    url("/max-zhang-n49ciNUwej8-unsplash.jpg") !important;
+    url("/yang-miao-YUJNtZS8n5o-unsplash.jpg") !important;
   background-position: center !important;
   background-size: cover !important;
   background-repeat: no-repeat !important;
