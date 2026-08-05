@@ -74,3 +74,5 @@ jobs:
           test "${request_code}" = "201"
           test "${latest_code}" = "200"
           test "${status}" = "built"
+
+# Triggered 2026-08-05 after Strategy hero image update
