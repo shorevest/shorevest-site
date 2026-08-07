@@ -1729,14 +1729,3 @@ body.strategy-page .sx-hero__image { display: none !important; }
   body.strategy-page .st-head,
   body.strategy-page .sv-exec__head { column-gap: 0; }
 }
-
-/* 2026-07-29 · Use the former homepage hero image for the Strategy hero and keep it in colour. */
-body.strategy-page .sx-hero__panel {
-  filter: none !important;
-  background:
-    linear-gradient(180deg, rgba(24,37,36,0.04), rgba(24,37,36,0.10)),
-    url("../../max-zhang-n49ciNUwej8-unsplash.jpg") center / cover no-repeat !important;
-}
-body.strategy-page .sx-hero__media:hover .sx-hero__panel {
-  filter: none !important;
-}

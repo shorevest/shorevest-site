@@ -50,3 +50,5 @@ test-results/
 /u-*.png
 /mh-*.png
 /mobile-*.png
+/chrome-scroll-live-report.json
+/chrome-scroll-live-screenshot.png
