@@ -1,78 +1,71 @@
-name: Force GitHub Pages rebuild
+name: Final repository structure cleanup
 
 on:
   push:
     branches: [main]
     paths:
       - ".github/workflows/force-pages-rebuild.yml"
-  workflow_dispatch:
 
 permissions:
   contents: write
-  pages: write
 
 jobs:
-  rebuild:
+  cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-      - name: Request and verify fresh GitHub Pages build
+      - name: Consolidate Strategy assets and remove stale code
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPOSITORY: ${{ github.repository }}
         run: |
-          set -u
-          api="https://api.github.com/repos/${GH_REPOSITORY}/pages"
-          headers=(
-            -H "Accept: application/vnd.github+json"
-            -H "Authorization: Bearer ${GH_TOKEN}"
-            -H "X-GitHub-Api-Version: 2026-03-10"
+          set -euo pipefail
+
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          visual = Path('assets/css/visual-review-overrides.css')
+          text = visual.read_text(encoding='utf-8')
+          old = 'url("/yang-miao-YUJNtZS8n5o-unsplash.jpg")'
+          new = 'url("/assets/img/strategy/yang-miao-YUJNtZS8n5o-unsplash.jpg")'
+          if old not in text:
+              raise SystemExit('Expected current Yang Miao Strategy reference not found')
+          visual.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          strategy = Path('assets/css/strategy-rebuild.css')
+          text = strategy.read_text(encoding='utf-8')
+          pattern = re.compile(
+              r'\n?/\* 2026-07-29 · Use the former homepage hero image for the Strategy hero and keep it in colour\. \*/\n'
+              r'body\.strategy-page \.sx-hero__panel \{.*?'
+              r'body\.strategy-page \.sx-hero__media:hover \.sx-hero__panel \{\n'
+              r'  filter: none !important;\n'
+              r'\}\s*\Z',
+              re.S,
           )
+          cleaned, count = pattern.subn('\n', text)
+          if count != 1:
+              raise SystemExit(f'Expected one stale Max Zhang Strategy block, found {count}')
+          strategy.write_text(cleaned.rstrip() + '\n', encoding='utf-8')
 
-          request_code=$(curl -sS -o /tmp/pages-build-request.json -w "%{http_code}" \
-            -X POST "${headers[@]}" "${api}/builds")
+          ignore = Path('.gitignore')
+          text = ignore.read_text(encoding='utf-8')
+          additions = [
+              '/chrome-scroll-live-report.json',
+              '/chrome-scroll-live-screenshot.png',
+          ]
+          for line in additions:
+              if line not in text.splitlines():
+                  text += line + '\n'
+          ignore.write_text(text, encoding='utf-8')
+          PY
 
-          status="unknown"
-          commit="unknown"
-          error=""
-          latest_code=""
+          mkdir -p assets/img/strategy
+          git mv yang-miao-YUJNtZS8n5o-unsplash.jpg assets/img/strategy/yang-miao-YUJNtZS8n5o-unsplash.jpg
+          git rm max-zhang-n49ciNUwej8-unsplash.jpg
+          rm .github/workflows/force-pages-rebuild.yml
 
-          for i in $(seq 1 24); do
-            sleep 5
-            latest_code=$(curl -sS -o /tmp/pages-build-latest.json -w "%{http_code}" \
-              "${headers[@]}" "${api}/builds/latest")
-            if [ "${latest_code}" = "200" ]; then
-              status=$(jq -r '.status // "unknown"' /tmp/pages-build-latest.json)
-              commit=$(jq -r '.commit // "unknown"' /tmp/pages-build-latest.json)
-              error=$(jq -r '.error.message // ""' /tmp/pages-build-latest.json)
-              if [ "${status}" = "built" ] || [ "${status}" = "errored" ]; then
-                break
-              fi
-            fi
-          done
-
-          {
-            echo "request_http=${request_code}"
-            echo "latest_http=${latest_code}"
-            echo "status=${status}"
-            echo "commit=${commit}"
-            echo "error=${error}"
-            echo "checked_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          } > pages-build-status.txt
-
-          cat pages-build-status.txt
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pages-build-status.txt
-          git commit -m "Record forced Pages rebuild status" || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .gitignore assets/css/visual-review-overrides.css assets/css/strategy-rebuild.css assets/img/strategy/yang-miao-YUJNtZS8n5o-unsplash.jpg .github/workflows/force-pages-rebuild.yml
+          git commit -m 'Consolidate Strategy assets and remove stale CSS'
           git push origin HEAD:main
-
-          test "${request_code}" = "201"
-          test "${latest_code}" = "200"
-          test "${status}" = "built"
-
-# Triggered 2026-08-05 after clean Strategy hero deployment cleanup
